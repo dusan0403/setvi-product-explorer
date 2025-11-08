@@ -1,5 +1,5 @@
 import { httpClient } from "../../../core/services/http.client";
-import type { Product, ProductsResponse } from "../types";
+import type { Category, Product, ProductsResponse } from "../types";
 
 interface GetProductsParams {
   limit?: number;
@@ -49,8 +49,8 @@ class ProductService {
     return data;
   }
 
-  async getCategories(): Promise<string[]> {
-    const { data } = await httpClient.get<string[]>("/products/categories");
+  async getCategories(): Promise<Category[]> {
+    const { data } = await httpClient.get<Category[]>("/products/categories");
     return data;
   }
 }
