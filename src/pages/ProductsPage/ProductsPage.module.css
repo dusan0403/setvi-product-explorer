@@ -5,23 +5,54 @@
 }
 
 .header {
-  background: white;
+  background: #fff;
   border-bottom: 1px solid #e0e0e0;
-  padding: 1rem 2rem;
 }
 
 .title {
   font-size: 1.5rem;
   font-weight: 600;
   color: #1a1a1a;
+  margin: 0;
+  padding: 1rem 0;
 }
 
 .main {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 1.5rem;
+  padding: 1.5rem 0;
+}
+
+.content {
   max-width: 1400px;
   width: 100%;
   margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 1.25rem;
+  }
+
+  .main {
+    padding: 1rem 0;
+  }
+
+  .content {
+    padding: 0 1rem;
+  }
 }

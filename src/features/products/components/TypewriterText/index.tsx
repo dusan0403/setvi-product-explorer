@@ -1,30 +1,31 @@
-import { useEffect, useState } from "react";
+import { TYPEWRITER_DEFAULT_SPEED } from "../../constants/typewriter";
 import styles from "./TypewriterText.module.css";
+import { useTypewriterText } from "./useTypewriter";
 
 interface TypewriterTextProps {
   text: string;
   speed?: number;
+  productId?: number | null;
+  ignoreCacheThisSession?: boolean;
 }
 
-export function TypewriterText({ text, speed = 30 }: TypewriterTextProps) {
-  const [displayedText, setDisplayedText] = useState("");
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  useEffect(() => {
-    if (currentIndex < text.length) {
-      const timeout = setTimeout(() => {
-        setDisplayedText((prev) => prev + text[currentIndex]);
-        setCurrentIndex((prev) => prev + 1);
-      }, speed);
-
-      return () => clearTimeout(timeout);
-    }
-  }, [currentIndex, text, speed]);
+export function TypewriterText({
+  text,
+  speed = TYPEWRITER_DEFAULT_SPEED,
+  productId,
+  ignoreCacheThisSession = false,
+}: TypewriterTextProps) {
+  const { displayedText, done } = useTypewriterText({
+    text,
+    speed,
+    productId,
+    ignoreCacheThisSession,
+  });
 
   return (
-    <div className={styles.typewriter}>
+    <div className={styles.typewriter} aria-live="polite">
       {displayedText}
-      {currentIndex < text.length && <span className={styles.cursor}>|</span>}
+      {!done && <span className={styles.cursor} />}
     </div>
   );
 }

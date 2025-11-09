@@ -1,91 +1,63 @@
-import { useRef, useCallback, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
-import { List } from "react-window";
-import { useInfiniteProducts } from "../../hooks/useProducts";
-import { ProductRowComponent } from "../ProductRow";
-import { ProductTableSkeleton } from "../ProductTableSkeleton";
 import styles from "./ProductTable.module.css";
+import { List } from "react-window";
+import { ProductRowForList } from "../ProductRow";
+import { ProductTableSkeleton } from "../ProductTableSkeleton";
+import { useProductTable } from "./useProductTable";
+import { LIST_HEIGHT, OVERSCAN_COUNT, ROW_HEIGHT } from "../../constants/table";
 
 interface ProductTableProps {
   onProductSelect: (id: number) => void;
 }
 
-const ROW_HEIGHT = 60;
-
 export function ProductTable({ onProductSelect }: ProductTableProps) {
-  const [searchParams] = useSearchParams();
-  const listRef = useRef(null);
-
-  const searchTerm = searchParams.get("search") || undefined;
-  const category = searchParams.get("category") || undefined;
-
   const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
+    listRef,
     isLoading,
     isError,
-  } = useInfiniteProducts({ searchTerm, category });
+    hasNextPage,
+    allProducts,
+    onRowsRendered,
+    rowProps,
+  } = useProductTable(onProductSelect);
 
-  const allProducts = useMemo(
-    () => data?.pages.flatMap((page) => page.products) ?? [],
-    [data?.pages]
-  );
-
-  const loadMoreItems = useCallback(() => {
-    if (!isFetchingNextPage && hasNextPage) {
-      fetchNextPage();
-    }
-  }, [isFetchingNextPage, hasNextPage, fetchNextPage]);
-
-  const itemCount = hasNextPage ? allProducts.length + 1 : allProducts.length;
-
-  const onRowsRendered = useCallback(
-    ({ stopIndex }: { stopIndex: number }) => {
-      if (stopIndex >= allProducts.length - 5) {
-        loadMoreItems();
-      }
-    },
-    [allProducts.length, loadMoreItems]
-  );
-
-  if (isLoading) {
-    return <ProductTableSkeleton />;
-  }
-
-  if (isError) {
+  if (isLoading) return <ProductTableSkeleton />;
+  if (isError)
     return <div className={styles.message}>Error loading products</div>;
-  }
-
-  if (allProducts.length === 0) {
+  if (allProducts.length === 0)
     return <div className={styles.message}>No products found</div>;
-  }
 
   return (
-    <div className={styles.tableContainer}>
-      <div className={styles.header}>
-        <div className={styles.headerCell}>Image</div>
-        <div className={styles.headerCell}>Title</div>
-        <div className={styles.headerCell}>Category</div>
-        <div className={styles.headerCell}>Price</div>
-        <div className={styles.headerCell}>Rating</div>
+    <div className={styles.tableContainer} role="table" aria-label="Products">
+      <div className={styles.header} role="rowgroup">
+        <div className={styles.headerCell} role="columnheader">
+          Image
+        </div>
+        <div className={styles.headerCell} role="columnheader">
+          Title
+        </div>
+        <div className={styles.headerCell} role="columnheader">
+          Category
+        </div>
+        <div className={styles.headerCell} role="columnheader">
+          Price
+        </div>
+        <div className={styles.headerCell} role="columnheader">
+          Rating
+        </div>
       </div>
 
-      <List
-        listRef={listRef}
-        rowComponent={ProductRowComponent}
-        rowCount={itemCount}
-        rowHeight={ROW_HEIGHT}
-        style={{ height: 600 }}
-        onRowsRendered={(_visible, all) => onRowsRendered(all)}
-        rowProps={{
-          products: allProducts,
-          onProductSelect,
-          hasNextPage: !!hasNextPage,
-          isFetchingNextPage
-        }}
-      />
+      <div role="rowgroup">
+        <List
+          listRef={listRef}
+          rowComponent={ProductRowForList}
+          rowCount={hasNextPage ? allProducts.length + 1 : allProducts.length}
+          rowHeight={ROW_HEIGHT}
+          style={{ height: LIST_HEIGHT }}
+          onRowsRendered={onRowsRendered}
+          rowProps={rowProps}
+          overscanCount={OVERSCAN_COUNT}
+        />
+      </div>
     </div>
   );
 }

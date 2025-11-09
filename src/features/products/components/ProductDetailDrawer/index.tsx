@@ -1,8 +1,6 @@
-import { useEffect, useState } from "react";
-import { useProductDetail } from "../../hooks/useProducts";
-import { useQuotesText } from "../../../quotes/hooks/useQuotes";
 import styles from "./ProductDetailDrawer.module.css";
 import { TypewriterText } from "../TypewriterText";
+import { useProductDetailDrawer } from "./useDrawer";
 
 interface ProductDetailDrawerProps {
   productId: number | null;
@@ -15,22 +13,30 @@ export function ProductDetailDrawer({
   isOpen,
   onClose,
 }: ProductDetailDrawerProps) {
-  const [showSummary, setShowSummary] = useState(false);
-  const { data: product, isLoading } = useProductDetail(productId);
-  const { data: quotesText } = useQuotesText(productId);
-
-  useEffect(() => {
-    if (!isOpen) {
-      setShowSummary(false);
-    }
-  }, [isOpen]);
+  const {
+    product,
+    isLoading,
+    quotesLoading,
+    cachedSummary,
+    quotesText,
+    showSummary,
+    typingThisSession,
+    titleRef,
+    handleGenerate,
+  } = useProductDetailDrawer(productId, isOpen);
 
   if (!isOpen) return null;
 
   return (
     <>
       <div className={styles.overlay} onClick={onClose} />
-      <div className={styles.drawer}>
+      <div
+        className={styles.drawer}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="drawer-title"
+        onKeyDown={(e) => e.key === "Escape" && onClose()}
+      >
         <button
           className={styles.closeBtn}
           onClick={onClose}
@@ -49,9 +55,21 @@ export function ProductDetailDrawer({
               src={product.thumbnail}
               alt={product.title}
               className={styles.image}
+              width={320}
+              height={320}
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
             />
 
-            <h2 className={styles.title}>{product.title}</h2>
+            <h2
+              id="drawer-title"
+              ref={titleRef}
+              tabIndex={-1}
+              className={styles.title}
+            >
+              {product.title}
+            </h2>
 
             <div className={styles.meta}>
               <span className={styles.price}>${product.price}</span>
@@ -73,16 +91,25 @@ export function ProductDetailDrawer({
 
             <div className={styles.summarySection}>
               <h3 className={styles.sectionTitle}>AI Summary</h3>
+
               {!showSummary ? (
                 <button
                   className={styles.generateBtn}
-                  onClick={() => setShowSummary(true)}
+                  onClick={handleGenerate}
+                  disabled={quotesLoading}
                 >
-                  Generate Summary
+                  {quotesLoading ? "Preparing..." : "Generate Summary"}
                 </button>
               ) : (
                 <div className={styles.summary}>
-                  {quotesText && <TypewriterText text={quotesText} />}
+                  {productId != null && (
+                    <TypewriterText
+                      key={productId}
+                      text={cachedSummary ?? quotesText ?? ""}
+                      productId={productId}
+                      ignoreCacheThisSession={typingThisSession}
+                    />
+                  )}
                 </div>
               )}
             </div>

@@ -11,13 +11,34 @@ export function ProductsPage() {
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>Product Explorer</h1>
+      <header className={styles.header} role="banner">
+        <div className={styles.content}>
+          <h1 className={styles.title}>Product Explorer</h1>
+        </div>
       </header>
 
-      <main className={styles.main}>
-        <ProductFilters />
-        <ProductTable onProductSelect={setSelectedProductId} />
+      <main className={styles.main} role="main">
+        <div
+          className={styles.content}
+          role="region"
+          aria-labelledby="filters-heading"
+        >
+          <h2 id="filters-heading" className={styles.visuallyHidden}>
+            Filters
+          </h2>
+          <ProductFilters />
+        </div>
+
+        <div
+          className={styles.content}
+          role="region"
+          aria-labelledby="table-heading"
+        >
+          <h2 id="table-heading" className={styles.visuallyHidden}>
+            Products table
+          </h2>
+          <ProductTable onProductSelect={setSelectedProductId} />
+        </div>
       </main>
 
       <ProductDetailDrawer

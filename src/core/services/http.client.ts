@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
-const API_TIMEOUT = Number(import.meta.env.VITE_API_TIMEOUT)
+const API_TIMEOUT = parseInt(import.meta.env.VITE_API_TIMEOUT ?? "", 10) || 15000;
 
 export const httpClient = axios.create({
   baseURL: API_BASE_URL,
@@ -10,7 +10,9 @@ export const httpClient = axios.create({
 
 if (import.meta.env.DEV) {
   httpClient.interceptors.request.use((config) => {
-    console.log(`${config.method?.toUpperCase()} ${config.url}`)
-    return config
-  })
+    const method = config.method?.toUpperCase() || "GET";
+    const url = `${config.baseURL ?? ""}${config.url ?? ""}`;
+    console.log(`[HTTP] ${method} ${url}`, config.params ?? {});
+    return config;
+  });
 }

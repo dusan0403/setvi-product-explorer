@@ -1,13 +1,18 @@
 .typewriter {
-  font-family: monospace;
-  line-height: 1.6;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: var(--text);
+  white-space: pre-wrap;
 }
 
 .cursor {
-  animation: blink 1s infinite;
+  display: inline-block;
+  width: 1.5px;
+  height: 0.95em;
+  margin-left: 1px;
+  background: var(--primary);
+  animation: blink 1s step-end infinite;
 }
 
-@keyframes blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
-}
+@keyframes blink { 50% { opacity: 0 } }
