@@ -16,7 +16,9 @@ export function ProductDetailDrawer({
   const {
     product,
     isLoading,
+    isError,
     quotesLoading,
+    quotesError,
     cachedSummary,
     quotesText,
     showSummary,
@@ -47,6 +49,12 @@ export function ProductDetailDrawer({
 
         {isLoading && (
           <div className={styles.loading}>Loading product details...</div>
+        )}
+
+        {isError && (
+          <div className={styles.error}>
+            Failed to load product details. Please try again.
+          </div>
         )}
 
         {product && (
@@ -96,9 +104,13 @@ export function ProductDetailDrawer({
                 <button
                   className={styles.generateBtn}
                   onClick={handleGenerate}
-                  disabled={quotesLoading}
+                  disabled={quotesLoading || quotesError}
                 >
-                  {quotesLoading ? "Preparing..." : "Generate Summary"}
+                  {quotesLoading
+                    ? "Preparing..."
+                    : quotesError
+                    ? "Failed to load quotes"
+                    : "Generate Summary"}
                 </button>
               ) : (
                 <div className={styles.summary}>

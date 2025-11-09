@@ -5,7 +5,7 @@ import { useDebounce } from "../../../../shared/hooks/useDebounce";
 
 export function useProductFilters() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { data: categories } = useCategories();
+  const { data: categories, isLoading, isError } = useCategories();
 
   const urlSearch = searchParams.get("search") || "";
   const urlCategory = searchParams.get("category") || "";
@@ -48,13 +48,18 @@ export function useProductFilters() {
     [setSearchParams, urlCategory]
   );
 
-  const categoryOptions = useMemo(
-    () => [
-      { value: "", label: "All Categories" },
-      ...(categories ?? []).map((c) => ({ value: c.slug, label: c.name })),
-    ],
-    [categories]
-  );
+ const categoryOptions = useMemo(() => {
+   if (isError) {
+     return [{ value: "", label: "Error loading categories" }];
+   }
+   if (isLoading) {
+     return [{ value: "", label: "Loading..." }];
+   }
+   return [
+     { value: "", label: "All Categories" },
+     ...(categories ?? []).map((c) => ({ value: c.slug, label: c.name })),
+   ];
+ }, [categories, isLoading, isError]);
 
   return {
     searchInput,

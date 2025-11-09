@@ -13,10 +13,12 @@ export function useProductDetailDrawer(
 
   const titleRef = useRef<HTMLHeadingElement>(null);
 
-  const { data: product, isLoading } = useProductDetail(productId);
-  const { data: quotesText, isFetching: quotesLoading } = useQuotesText(
-    !!productId
-  );
+  const { data: product, isLoading, isError } = useProductDetail(productId);
+  const {
+    data: quotesText,
+    isFetching: quotesLoading,
+    isError: quotesError,
+  } = useQuotesText(!!productId);
 
   const cachedSummary = useMemo(() => {
     if (productId == null) return null;
@@ -48,6 +50,9 @@ export function useProductDetailDrawer(
   }, [persistArmed, productId, quotesText]);
 
   const handleGenerate = () => {
+    if (quotesError) {
+      return;
+    }
     setShowSummary(true);
     setTypingThisSession(true);
     if (productId != null && quotesText) {
@@ -61,8 +66,10 @@ export function useProductDetailDrawer(
   return {
     product,
     isLoading,
+    isError,
     quotesText,
     quotesLoading,
+    quotesError,
     cachedSummary,
     showSummary,
     typingThisSession,
